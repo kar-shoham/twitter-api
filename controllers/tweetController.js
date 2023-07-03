@@ -385,36 +385,128 @@ export let getUserRetweets = asyncWrapper(async (req, res, next) => {
   });
 });
 
-
 export let getUserReplies = asyncWrapper(async (req, res, next) => {
-    let { id } = req.params;
-    let { limit, page } = req.query;
-    if (!limit) limit = 10;
-    if (!page) page = 0;
-    if (!id) {
-      return next(createError("Invalid user id"));
-    }
-    let user = await User.findById(id);
-    if (!user) {
-      return next(createError("Invalid user id"));
-    }
-    let tweets = [];
-    for (
-      let i = page * limit, j = 0;
-      i < user.replies.length && j < limit;
-      i++, j++
-    ) {
-      let reply = await Tweet.findById(user.replies[i].id);
-      let originalTweet = await Tweet.findById(user.replies[i].originalId);
-      tweets.push({reply, originalTweet});
-    }
-    res.status(200).json({
-      success: true,
-      message: "All replies of user fetched",
-      tweets,
-    });
+  let { id } = req.params;
+  let { limit, page } = req.query;
+  if (!limit) limit = 10;
+  if (!page) page = 0;
+  if (!id) {
+    return next(createError("Invalid user id"));
+  }
+  let user = await User.findById(id);
+  if (!user) {
+    return next(createError("Invalid user id"));
+  }
+  let tweets = [];
+  for (
+    let i = page * limit, j = 0;
+    i < user.replies.length && j < limit;
+    i++, j++
+  ) {
+    let reply = await Tweet.findById(user.replies[i].id);
+    let originalTweet = await Tweet.findById(user.replies[i].originalId);
+    tweets.push({ reply, originalTweet });
+  }
+  res.status(200).json({
+    success: true,
+    message: "All replies of user fetched",
+    tweets,
   });
+});
 
-export let getMyTweets = asyncWrapper(async (req, res, next) => {});
+export let getMyTweets = asyncWrapper(async (req, res, next) => {
+  let { limit, page } = req.query;
+  if (!limit) limit = 10;
+  if (!page) page = 0;
+  let user = await User.findById(req.user._id);
+  if (!user) {
+    return next(createError("Invalid user id"));
+  }
+  let tweets = [];
+  for (
+    let i = page * limit, j = 0;
+    i < user.tweets.length && j < limit;
+    i++, j++
+  ) {
+    let tweet = await Tweet.findById(user.tweets[i]);
+    tweets.push(tweet);
+  }
+  res.status(200).json({
+    success: true,
+    tweets,
+  });
+});
 
-export let getFeed = asyncWrapper(async (req, res, next) => {});
+export let getMyLikes = asyncWrapper(async (req, res, next) => {
+  let { limit, page } = req.query;
+  if (!limit) limit = 10;
+  if (!page) page = 0;
+  let user = await User.findById(req.user._id);
+  if (!user) {
+    return next(createError("Invalid user id"));
+  }
+  let tweets = [];
+  for (
+    let i = page * limit, j = 0;
+    i < user.likes.length && j < limit;
+    i++, j++
+  ) {
+    let tweet = await Tweet.findById(user.likes[i]);
+    tweets.push(tweet);
+  }
+  res.status(200).json({
+    success: true,
+    tweets,
+  });
+});
+
+export let getMyRetweets = asyncWrapper(async (req, res, next) => {
+  let { limit, page } = req.query;
+  if (!limit) limit = 10;
+  if (!page) page = 0;
+  let user = await User.findById(req.user._id);
+  if (!user) {
+    return next(createError("Invalid user id"));
+  }
+  let tweets = [];
+  for (
+    let i = page * limit, j = 0;
+    i < user.retweets.length && j < limit;
+    i++, j++
+  ) {
+    let tweet = await Tweet.findById(user.retweets[i]);
+    tweets.push(tweet);
+  }
+  res.status(200).json({
+    success: true,
+    tweets,
+  });
+});
+
+export let getMyReplies = asyncWrapper(async (req, res, next) => {
+  let { limit, page } = req.query;
+  if (!limit) limit = 10;
+  if (!page) page = 0;
+  let user = await User.findById(req.user._id);
+  if (!user) {
+    return next(createError("Invalid user id"));
+  }
+  let tweets = [];
+  for (
+    let i = page * limit, j = 0;
+    i < user.replies.length && j < limit;
+    i++, j++
+  ) {
+    let reply = await Tweet.findById(user.replies[i].id);
+    let originalTweet = await Tweet.findById(user.replies[i].originalId);
+    tweets.push({ reply, originalTweet });
+  }
+  res.status(200).json({
+    success: true,
+    tweets,
+  });
+});
+
+export let getMyFeed = asyncWrapper(async (req, res, next) => {
+    
+});

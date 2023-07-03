@@ -2,6 +2,10 @@ import express, { Router } from "express";
 import {
   createTweet,
   deleteTweet,
+  getMyLikes,
+  getMyReplies,
+  getMyRetweets,
+  getMyTweets,
   getTweet,
   getUserFeed,
   getUserLikedPosts,
@@ -34,6 +38,12 @@ router
 router.route("/tweet/like/:id").patch(authenticate, toggleLikeTweet);
 router.route("/tweet/bookmark/:id").patch(authenticate, toggleBookmarkTweet);
 router.route("/tweet/retweet/:id").patch(authenticate, toggleRetweetTweet);
+
+
+router.route('/me/posts').get(authenticate, getMyTweets)
+router.route('/me/likes').get(authenticate, getMyLikes)
+router.route('/me/retweets').get(authenticate, getMyRetweets)
+router.route('/me/replies').get(authenticate, getMyReplies)
 
 
 router.route('/user/tweets/:id').get(getUserFeed)
