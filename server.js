@@ -2,10 +2,16 @@ import app from "./app.js";
 import connectDB from "./config/connect.js";
 import dotenv from "dotenv";
 import cloudinary from "cloudinary";
+import cors from 'cors'
 
 dotenv.config({
   path: "./config/config.env",
 });
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}))
 
 let start = async () => {
   let server = app.listen(process.env.PORT, () => {

@@ -9,6 +9,8 @@ import crypto from "crypto";
 
 let options = {
   httpOnly: true,
+  sameSite: "none",
+  secure: true,
 };
 
 export let register = asyncWrapper(async (req, res, next) => {
