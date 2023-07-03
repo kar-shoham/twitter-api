@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-let sendMail = async(to, message, subject) => {
+let sendMail = async (to, message, subject) => {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -14,8 +14,15 @@ let sendMail = async(to, message, subject) => {
     subject, // Subject line
     text: message, // plain text body
   };
-  console.log('Mail about to be sent')
-  await transporter.sendMail(mailOptions);
+  new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, function (error, response) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve("email sent");
+      }
+    });
+  });
 };
 
 export default sendMail;
