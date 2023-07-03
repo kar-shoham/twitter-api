@@ -291,7 +291,7 @@ export let deleteMyAccount = asyncWrapper(async (req, res, next) => {
   if (user?.profilePicture?.public_id) {
     await cloudinary.v2.uploader.destroy(user?.profilePicture?.public_id);
   }
-  await User.findByIdAndDelete(req.user._id)
+  await User.findByIdAndDelete(req.user._id);
   res.status(202).cookie("token", "", options).json({
     success: true,
     message: "Your account has been deleted successfully",
@@ -339,6 +339,9 @@ export let searchUser = asyncWrapper(async (req, res, next) => {
       },
       {
         name: { $regex: keyword, $options: "i" },
+      },
+      {
+        bio: { $regex: keyword, $options: "i" },
       },
     ],
   })

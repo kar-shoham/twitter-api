@@ -4,6 +4,7 @@ import User from "../models/userModel.js";
 import { createError } from "../utils/errorClass.js";
 import getDataUri from "../utils/getDataUri.js";
 import cloudinary from "cloudinary";
+import Hashtag from "../models/hashtagModel.js";
 
 export let createTweet = asyncWrapper(async (req, res, next) => {
   let { text, resourceType } = req.body;
@@ -14,6 +15,11 @@ export let createTweet = asyncWrapper(async (req, res, next) => {
   if (text.length < 5) {
     return next(createError("Text must be longer", 400));
   }
+
+  // for trending #s
+  let words = text.split(" ");
+  words = words.filter((ele) => ele.length > 1 && ele[0] === "#");
+
   let user = await User.findById(req.user._id);
   let newTweet = { text, postBy: user._id };
   if (file) {
@@ -39,6 +45,12 @@ export let createTweet = asyncWrapper(async (req, res, next) => {
   await tweet.save();
   user.tweets.unshift(tweet._id);
   await user.save();
+  words.forEach(async (ele) => {
+    let tag = await Hashtag.findOne({ hashtag: ele });
+    if (tag) tag.count = tag.count + 1;
+    else tag = new Hashtag({ hashtag: ele });
+    await tag.save();
+  });
   res.status(201).json({
     success: true,
     message: "Tweet created successfully",
@@ -249,8 +261,8 @@ export let replyTweet = asyncWrapper(async (req, res, next) => {
     return next(createError("Tweet not found", 404));
   }
   let user = await User.findById(req.user._id);
-  let { text, resourceType } = req.body;
   let file = req.file;
+  let { text, resourceType } = req.body;
   if (!text) {
     return next(createError("Tweet must contain a text", 400));
   }
@@ -507,6 +519,62 @@ export let getMyReplies = asyncWrapper(async (req, res, next) => {
   });
 });
 
+export let searchTweet = asyncWrapper(async (req, res, next) => {
+  let { keyword, limit } = req.query;
+  if (!keyword) keyword = "";
+  if (!limit) limit = 10;
+  let tweets = await Tweet.find({
+    $or: [
+      {
+        text: { $regex: keyword, $options: "i" },
+      },
+    ],
+    $and: [
+      {
+        isReply: false,
+      },
+    ],
+  }).limit(limit);
+  res.json({
+    success: true,
+    tweets,
+    numTweets: tweets.length,
+  });
+});
+
 export let getMyFeed = asyncWrapper(async (req, res, next) => {
-    
+  let me = await User.findById(req.user._id);
+  let tweetLinks = [];
+  me.tweets.forEach((ele) => {
+    tweetLinks.push({ id: ele, retweet: false });
+  });
+  me.retweets.forEach((ele) => {
+    tweetLinks.push({ id: ele, retweet: true });
+  });
+  for (let i = 0; i < me.following.length; i++) {
+    let user = await User.findById(me.following[i]);
+    if (user) {
+      user.tweets.forEach((ele) => {
+        tweetLinks.push({ id: ele, retweet: false });
+      });
+      user.retweets.forEach((ele) => {
+        tweetLinks.push({ id: ele, retweet: true });
+      });
+    }
+  }
+  let myFeed = [];
+  for (let i = 0; i < tweetLinks.length; i++) {
+    let tweet = await Tweet.findById(tweetLinks[i].id);
+    if (!tweet) tweet = { _id: "Doest exists" };
+    myFeed.push({ tweet, retweet: tweetLinks[i].retweet });
+  }
+  myFeed = myFeed.sort((a, b) => {
+    return b.tweet.createdAt - a.tweet.createdAt;
+  });
+  console.log("lol");
+  res.json({
+    success: true,
+    myFeed,
+    feedLength: myFeed.length,
+  });
 });

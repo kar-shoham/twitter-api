@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+
+// for trending section of twitter
 let hashtagSchema = new mongoose.Schema({
   hashtag: {
     type: String,
@@ -7,7 +9,7 @@ let hashtagSchema = new mongoose.Schema({
   },
   count: {
     type: Number,
-    default: 0,
+    default: 1,
   },
 });
 

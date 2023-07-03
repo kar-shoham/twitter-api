@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import {
   createTweet,
   deleteTweet,
+  getMyFeed,
   getMyLikes,
   getMyReplies,
   getMyRetweets,
@@ -12,6 +13,7 @@ import {
   getUserReplies,
   getUserRetweets,
   replyTweet,
+  searchTweet,
   toggleBookmarkTweet,
   toggleLikeTweet,
   toggleRetweetTweet,
@@ -27,30 +29,31 @@ import { deleteUserTweet } from "../controllers/adminController.js";
 
 let router = express.Router();
 
-router.route("/tweet").post(authenticate, singleUpload, createTweet);
+router
+  .route("/tweet")
+  .post(authenticate, singleUpload, createTweet)
+  .get(searchTweet);
 router
   .route("/tweet/:id")
   .delete(authenticate, deleteTweet)
   .get(getTweet)
-  .post(authenticate, replyTweet)
+  .post(authenticate, singleUpload, replyTweet)
   .patch(authenticate, verifySubscription, singleUpload, updateTweet);
 
 router.route("/tweet/like/:id").patch(authenticate, toggleLikeTweet);
 router.route("/tweet/bookmark/:id").patch(authenticate, toggleBookmarkTweet);
 router.route("/tweet/retweet/:id").patch(authenticate, toggleRetweetTweet);
 
+router.route("/me/posts").get(authenticate, getMyTweets);
+router.route("/me/likes").get(authenticate, getMyLikes);
+router.route("/me/retweets").get(authenticate, getMyRetweets);
+router.route("/me/replies").get(authenticate, getMyReplies);
+router.route("/me/feed").get(authenticate, getMyFeed);
 
-router.route('/me/posts').get(authenticate, getMyTweets)
-router.route('/me/likes').get(authenticate, getMyLikes)
-router.route('/me/retweets').get(authenticate, getMyRetweets)
-router.route('/me/replies').get(authenticate, getMyReplies)
-
-
-router.route('/user/tweets/:id').get(getUserFeed)
-router.route('/user/likes/:id').get(getUserLikedPosts)
-router.route('/user/retweets/:id').get(getUserRetweets)
-router.route('/user/replies/:id').get(getUserReplies)
-
+router.route("/user/tweets/:id").get(getUserFeed);
+router.route("/user/likes/:id").get(getUserLikedPosts);
+router.route("/user/retweets/:id").get(getUserRetweets);
+router.route("/user/replies/:id").get(getUserReplies);
 
 router
   .route("/admin/tweet/:id")
