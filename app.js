@@ -4,6 +4,7 @@ import errorHandler from "./middlewares/errorMiddleware.js";
 import userRoute from "./router/userRouter.js";
 import tweetRoute from "./router/tweetRouter.js";
 import otherRoute from "./router/otherRouter.js";
+import cors from 'cors'
 
 let app = express();
 
