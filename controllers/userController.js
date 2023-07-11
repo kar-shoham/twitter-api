@@ -190,7 +190,7 @@ export let forgotPassword = asyncWrapper(async (req, res, next) => {
     return next(createError("Invalid email id", 401));
   }
   let resetToken = await user.getResetToken();
-  let url = `${process.env.BACKEND_URL}/resetpassword/${resetToken}`;
+  let url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
   let message = `Hey, ${user.name}, \nPlease follow the link below to update the password: \n ${url}`;
   sendMail(user.email, message, "Please reset your password");
   res.json({
