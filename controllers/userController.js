@@ -222,10 +222,12 @@ export let resetPassword = asyncWrapper(async (req, res, next) => {
   }
   if (user.resetTokenExpiry < Date.now()) {
     return next(
-      createError("Reset lol password link is either invalid or expired", 400)
+      createError("Reset password link is either invalid or expired", 400)
     );
   }
   user.password = password;
+  user.resetPasswordToken = null
+  user.resetTokenExpiry = Date.now()
   await user.save();
   res.json({
     success: true,
